@@ -1,0 +1,42 @@
+<!doctype html>
+<html lang="tr">
+<head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>BT Gizli Yılbaşı Hediyesi</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Arial,sans-serif;color:#fff;background:linear-gradient(135deg,#052e22,#020617,#450a0a);min-height:100vh}.wrap{max-width:900px;margin:auto;padding:42px 22px}h1{font-size:42px;margin:0 0 8px}p{color:#cbd5e1}.card{background:#ffffff12;border:1px solid #ffffff24;border-radius:24px;padding:26px;margin-top:24px;box-shadow:0 18px 45px #0005}.grid{display:grid;grid-template-columns:1fr 1fr;gap:18px}.hidden{display:none}textarea,select{width:100%;background:#0f172a;color:white;border:1px solid #ffffff30;border-radius:15px;padding:14px;font-size:16px}textarea{height:280px;resize:vertical}button{border:0;border-radius:15px;padding:13px 18px;font-size:15px;font-weight:700;cursor:pointer;background:#059669;color:white}button.gold{background:#fbbf24;color:#172033;width:100%}button.secondary{background:#ffffff18;border:1px solid #ffffff2b}button:disabled{opacity:.45;cursor:not-allowed}.row{display:flex;align-items:center;justify-content:space-between;gap:14px;margin-top:14px}.result{text-align:center;display:flex;min-height:245px;align-items:center;justify-content:center}.name{font-size:38px;font-weight:900;margin:9px 0}.small{font-size:12px;color:#94a3b8}.lock{font-size:48px}.footer{margin-top:22px;font-size:12px;color:#94a3b8}@media(max-width:700px){.grid{grid-template-columns:1fr}h1{font-size:32px}}
+</style>
+</head>
+<body><div class="wrap">
+<h1>🎁 BT Gizli Yılbaşı Hediyesi</h1>
+<p>Herkes yalnızca kendi hediye alacağı kişiyi görür. Eşleşmeler topluca gösterilmez.</p>
+<section id="login" class="card"><h2>Yönetici Girişi</h2><p>Çekilişi oluşturmak için yönetici hesabıyla giriş yapın.</p><input id="adminUser" placeholder="Kullanıcı adı" autocomplete="username" style="width:100%;background:#0f172a;color:white;border:1px solid #ffffff30;border-radius:15px;padding:14px;font-size:16px;margin-bottom:10px"><input id="adminPass" type="password" placeholder="Şifre" autocomplete="current-password" style="width:100%;background:#0f172a;color:white;border:1px solid #ffffff30;border-radius:15px;padding:14px;font-size:16px"><button id="adminLogin" style="margin-top:14px;width:100%">Yönetici Girişi</button><p id="loginError" style="color:#fca5a5;display:none">Kullanıcı adı veya şifre hatalı.</p></section>
+<section id="setup" class="card hidden"><h2>1. Katılımcıları ekleyin</h2><p>Her satıra bir kişi yazın. En az 3 katılımcı gerekir.</p>
+<textarea id="people">Deniz
+Burcu
+Mustafa
+Murat
+Sinem
+Harun
+Bahadır</textarea>
+<div class="row"><span id="count">7 katılımcı</span><button id="draw">🔀 Gizli eşleştirmeyi yap</button></div></section>
+<section id="game" class="hidden"><div class="grid">
+<div class="card"><h2>🔒 2. Kim olduğunu seç</h2><p>Ekranı diğer kişilerden gizleyerek ilerle.</p><select id="who"><option value="">Adını seç...</option></select><button id="reveal" class="gold" style="margin-top:14px" disabled>👁 Sadece bana göster</button></div>
+<div class="card result" id="result"><div><div class="lock">🔒</div><p>Önce adını seç.</p></div></div>
+</div></section>
+<div class="footer"><b>Güvenlik notu:</b> Yönetici kullanıcı adı ve şifresi bu tek dosyalık HTML içinde yer aldığı için teknik bilgisi olan biri kaynak koddan görebilir. Gerçek dağıtımda kimlik doğrulama sunucu tarafında yapılmalıdır.<br><br><b>Gizlilik notu:</b> Bu paketlenmiş sürümde çekiliş bir kez başlatıldıktan sonra arayüzden yeniden çekiliş yapılamaz. Sayfanın yenilenmesi de yeni eşleştirme üretmemelidir; kalıcı dağıtım için sunucu tarafında kilitli çekiliş kaydı önerilir.</div>
+</div>
+<script>
+let assignments=null, revealed=false;
+const ADMIN_USER='admin', ADMIN_PASS='Vakko1234';
+const login=document.getElementById('login'),adminUser=document.getElementById('adminUser'),adminPass=document.getElementById('adminPass'),loginError=document.getElementById('loginError');
+document.getElementById('adminLogin').onclick=()=>{if(adminUser.value===ADMIN_USER && adminPass.value===ADMIN_PASS){login.classList.add('hidden');document.getElementById('setup').classList.remove('hidden');loginError.style.display='none'}else{loginError.style.display='block'}};
+const people=document.getElementById('people'),count=document.getElementById('count'),draw=document.getElementById('draw'),setup=document.getElementById('setup'),game=document.getElementById('game'),who=document.getElementById('who'),reveal=document.getElementById('reveal'),result=document.getElementById('result');
+function names(){return [...new Set(people.value.split(/\n/).map(x=>x.trim()).filter(Boolean))]}
+function update(){const n=names().length;count.textContent=n+' katılımcı';draw.disabled=n<3} people.addEventListener('input',update);
+function shuffle(a){a=[...a];for(let i=a.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[a[i],a[j]]=[a[j],a[i]]}return a}
+draw.onclick=()=>{const n=names(),s=shuffle(n);assignments={};s.forEach((x,i)=>assignments[x]=s[(i+1)%s.length]);who.innerHTML='<option value="">Adını seç...</option>'+[...n].sort((a,b)=>a.localeCompare(b,'tr')).map(x=>`<option>${x}</option>`).join('');setup.classList.add('hidden');game.classList.remove('hidden')};
+who.onchange=()=>{revealed=false;reveal.disabled=!who.value;reveal.textContent='👁 Sadece bana göster';result.innerHTML=who.value?'<div><div class="lock">🔒</div><p>Eşleşmen gizli.</p></div>':'<div><div class="lock">🔒</div><p>Önce adını seç.</p></div>'};
+reveal.onclick=()=>{revealed=!revealed;if(revealed){result.innerHTML=`<div><div class="lock">🎁</div><p>Hediye alacağın kişi</p><div class="name">${assignments[who.value]}</div><div class="small">İsmi aklında tut ve “Gizle”ye bas.</div></div>`;reveal.textContent='🙈 Gizle'}else{result.innerHTML='<div><div class="lock">🔒</div><p>Eşleşmen gizli.</p></div>';reveal.textContent='👁 Sadece bana göster'}};
+update();
+</script></body></html>
